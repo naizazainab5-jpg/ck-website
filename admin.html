@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Owner panel | CK Traders &amp; CK Sons</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<style>
+body{background:var(--cream)}main{max-width:920px;margin:0 auto;padding:20px}
+.box{background:#fff;border:1px solid var(--bd);padding:16px;margin:14px 0;display:grid;gap:10px}
+.vr{display:grid;grid-template-columns:2fr 1fr 1fr 1fr auto;gap:8px;align-items:end}
+.vr label{font-size:12px;font-weight:700;display:grid;gap:4px}
+.bar{position:sticky;top:0;background:var(--g);color:#fff;padding:12px 20px;display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap;z-index:5}
+.x{background:none;border:0;color:#b00;cursor:pointer;font-size:20px}
+input[type=checkbox]{width:auto;height:22px}
+#login{max-width:340px;margin:60px auto;background:#fff;padding:24px;display:grid;gap:12px}
+@media(max-width:700px){.vr,.vr[style]{grid-template-columns:1fr 1fr!important}}
+</style>
+</head>
+<body>
+<div class="bar"><strong>Owner panel</strong><span id="st"></span>
+  <span><button class="btn alt" style="color:#fff;border-color:#fff" id="hike">% price change</button>
+  <button class="btn" style="background:var(--gold)" id="save">Save changes</button> <a href="index.html" style="margin-left:8px">View site</a></span></div>
+<form id="login" hidden><h2 style="font-size:28px">Owner login</h2>
+  <input id="em" type="email" placeholder="Email" required><input id="pw" type="password" placeholder="Password" required>
+  <button class="btn">Log in</button></form>
+<main id="app"></main>
+<datalist id="imgs"></datalist>
+<script src="data.js"></script>
+<script>
+const $ = s => document.querySelector(s);
+let D;
+const set = (p, v) => { const k = p.split("."); let o = D; k.slice(0, -1).forEach(x => o = o[x]); o[k.at(-1)] = v; };
+
+const prod = (p, i) => `<div class="box">
+  <div class="vr" style="grid-template-columns:2fr 2fr auto auto">
+    <label>Product name<input data-p="products.${i}.name" value="${p.name}"></label>
+    <label>Photo file<input data-p="products.${i}.img" value="${p.img}" list="imgs"></label>
+    <label>Hidden<input type="checkbox" data-c="products.${i}.hidden" ${p.hidden ? "checked" : ""}></label>
+    <button type="button" class="x" data-a="delP" data-i="${i}" title="Delete product">🗑</button></div>
+  ${p.variants.map((v, j) => `<div class="vr">
+    <label>Variant name (optional)<input data-p="products.${i}.variants.${j}.name" value="${v.name || ""}" placeholder="e.g. Premium"></label>
+    <label>Bag kg<input type="number" data-n data-p="products.${i}.variants.${j}.kg" value="${v.kg}"></label>
+    <label>Max kg (optional)<input type="number" data-n data-p="products.${i}.variants.${j}.max" value="${v.max || ""}"></label>
+    <label>Rate ₹/kg<input type="number" data-n data-p="products.${i}.variants.${j}.rate" value="${v.rate}"></label>
+    <button type="button" class="x" data-a="delV" data-i="${i}" data-j="${j}" title="Remove variant">✕</button></div>`).join("")}
+  <button type="button" class="btn alt" data-a="addV" data-i="${i}">+ Add variant</button></div>`;
+
+function draw() {
+  $("#imgs").innerHTML = SEED.products.map(p => `<option value="${p.img}">`).join("");
+  $("#app").innerHTML = `<div class="box"><h3>Shops</h3>${Object.entries(D.shops).map(([k, s]) => `
+    <div class="vr" style="grid-template-columns:1fr 1fr 1fr">
+      <label>Shop name<input data-p="shops.${k}.name" value="${s.name}"></label>
+      <label>Tagline<input data-p="shops.${k}.tag" value="${s.tag}"></label>
+      <label>WhatsApp number (with 91)<input data-p="shops.${k}.phone" value="${s.phone}" placeholder="919876543210"></label></div>`).join("")}</div>` +
+    Object.entries(D.shops).map(([k, s]) => `<h2 style="font-size:28px;margin-top:26px">${s.name}</h2>` +
+      D.products.map((p, i) => p.shop === k ? prod(p, i) : "").join("") +
+      `<button type="button" class="btn alt" data-a="addP" data-k="${k}">+ Add product</button>`).join("");
+}
+
+$("#app").addEventListener("input", e => {
+  const t = e.target, p = t.dataset.p;
+  if (p) set(p, "n" in t.dataset ? (t.value === "" ? 0 : +t.value) : t.value);
+});
+$("#app").addEventListener("change", e => { const c = e.target.dataset.c; if (c) set(c, e.target.checked); });
+$("#app").addEventListener("click", e => {
+  const b = e.target.closest("[data-a]"); if (!b) return;
+  const { a, i, j, k } = b.dataset;
+  if (a === "addP") D.products.push({ id: "p" + Date.now(), shop: k, name: "New product", img: "", variants: [{ kg: 50, rate: 0 }] });
+  if (a === "addV") D.products[i].variants.push({ kg: 50, rate: 0 });
+  if (a === "delV") { if (D.products[i].variants.length < 2) return alert("A product needs at least one bag option."); D.products[i].variants.splice(j, 1); }
+  if (a === "delP") { if (!confirm("Delete this product? (Use Hidden to keep it for later.)")) return; D.products.splice(i, 1); }
+  draw();
+});
+
+$("#save").onclick = async () => {
+  try { await Store.save(D); $("#st").textContent = "Saved ✓ " + new Date().toLocaleTimeString(); }
+  catch (e) { alert("Could not save. Are you logged in? " + e.message); }
+};
+$("#hike").onclick = () => {
+  const x = +prompt("Change ALL rates by what %? Use 5 for +5%, -3 for −3%.");
+  if (!x) return;
+  D.products.forEach(p => p.variants.forEach(v => v.rate = Math.round(v.rate * (1 + x / 100))));
+  draw();
+};
+
+async function start() { D = await Store.load(); draw(); }
+(async () => {
+  const f = await Store.fb();
+  if (!f) { $("#st").textContent = "Demo mode: saves in this browser only"; return start(); }
+  f.auth().onAuthStateChanged(u => { $("#login").hidden = !!u; if (u) start(); else $("#app").innerHTML = ""; });
+  $("#login").onsubmit = async e => {
+    e.preventDefault();
+    try { await f.auth().signInWithEmailAndPassword($("#em").value, $("#pw").value); } catch { alert("Wrong email or password."); }
+  };
+})();
+</script>
+</body>
+</html>

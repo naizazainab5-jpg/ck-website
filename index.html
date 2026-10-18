@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CK Traders &amp; CK Sons | Wholesale Spices &amp; Pulses</title>
+<meta name="description" content="Wholesale spices from CK Traders and pulses from CK Sons, supplied in bulk bags.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="wrap">
+  <a href="#home" class="logo">CK <b>TRADERS</b> &amp; <b>SONS</b></a>
+  <nav><a href="#home">Home</a><a href="#products">Products</a><a href="#order">Order</a></nav>
+  <a href="#order" class="btn">Place enquiry ↗</a>
+</header>
+
+<section class="hero wrap" id="home">
+  <div class="reveal">
+    <p class="eyebrow">TWO SHOPS · ONE TRUSTED NAME</p>
+    <h1>Fresh stock.<br>Honest <em>bulk rates.</em></h1>
+    <p class="lead">Spices from CK Traders and pulses from CK Sons, supplied in bulk bags to shops, caterers and distributors.</p>
+    <div class="acts">
+      <button class="btn" data-go="ckt">CK Traders · Spices</button>
+      <button class="btn alt" data-go="cks">CK Sons · Pulses</button>
+    </div>
+  </div>
+  <div class="collage" aria-hidden="true">
+    <img src="images/turmeric.jpg" alt=""><img src="images/green-gram.jpg" alt=""><img src="images/red-chilli.jpg" alt="">
+  </div>
+</section>
+
+<div class="strip wrap"><div>Spices · CK Traders</div><div>Pulses · CK Sons</div><div>30 kg to 50 kg bags</div><div>Rates updated by season</div></div>
+
+<section class="wrap" id="products">
+  <div class="reveal"><p class="eyebrow">OUR WHOLESALE STOCK</p><h2>Choose your shop.</h2></div>
+  <div class="tabs" id="tabs"></div>
+  <div class="grid" id="grid"></div>
+  <p class="note">Rates are per kg and change with the season. The shop confirms the final rate and availability.</p>
+</section>
+
+<section class="wrap ord" id="order" style="background:var(--cream)">
+  <div class="reveal"><p class="eyebrow">BULK ORDERS</p><h2>Tell us what you need.</h2><p>Pick a product, set the bags or the kilograms, and send your order straight to the shop on WhatsApp.</p></div>
+  <form id="f" class="reveal">
+    <label>Product<select id="prod"></select></label>
+    <label>Bag option<select id="var"></select></label>
+    <div class="two">
+      <label>Number of bags<div class="step"><button type="button" data-t="bags" data-d="-1" aria-label="Fewer bags">−</button><input id="bags" type="number" min="1" step="any" value="1"><button type="button" data-t="bags" data-d="1" aria-label="More bags">+</button></div></label>
+      <label>Total kg<div class="step"><button type="button" data-t="kg" data-d="-1" aria-label="Fewer kg">−</button><input id="kg" type="number" min="1" step="any" value="1"><button type="button" data-t="kg" data-d="1" aria-label="More kg">+</button></div></label>
+    </div>
+    <div class="est" id="est"></div>
+    <div class="two">
+      <label>Your name<input id="nm" required></label>
+      <label>Phone<input id="ph" type="tel" required></label>
+    </div>
+    <label>Business / shop name<input id="bz" required></label>
+    <label>Notes (delivery place, etc.)<textarea id="nt" rows="2"></textarea></label>
+    <button class="btn" type="submit">Send order on WhatsApp ↗</button>
+  </form>
+</section>
+
+<footer class="wrap"><span>© <span id="yr"></span> CK Traders &amp; CK Sons</span><a href="admin.html">Owner login</a></footer>
+
+<script src="data.js"></script>
+<script src="script.js"></script>
+</body>
+</html>
