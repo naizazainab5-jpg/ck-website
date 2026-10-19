@@ -29,6 +29,7 @@ input[type=checkbox]{width:auto;height:22px}
   <input id="em" type="email" placeholder="Email" required><input id="pw" type="password" placeholder="Password" required>
   <button class="btn">Log in</button></form>
 <main id="app"></main>
+ <main id="ord"></main> 
 <datalist id="imgs"></datalist>
 <script src="data.js"></script>
 <script>
@@ -87,8 +88,27 @@ $("#hike").onclick = () => {
   D.products.forEach(p => p.variants.forEach(v => v.rate = Math.round(v.rate * (1 + x / 100))));
   draw();
 };
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+async function loadOrders() {
+  let L = [];
+  try { L = await Store.orders(); } catch (e) { $("#ord").innerHTML = "<p>Could not load orders: " + esc(e.message) + "</p>"; return; }
+  $("#ord").innerHTML = `<h2 style="font-size:28px;margin-top:30px">Order history</h2>` + (L.length ? L.map(o => `
+    <div class="box"><b>${esc(o.shop)} · ${esc(o.product)} (${esc(o.variant)})</b>
+    <span>${esc(o.bags)} bags · ${esc(o.kg)} kg · ${esc(new Date(o.at).toLocaleString("en-IN"))}</span>
+    <span>${esc(o.name)}, ${esc(o.business)} · <a href="tel:${esc(o.phone)}">${esc(o.phone)}</a></span>
+    ${o.notes ? `<span>Notes: ${esc(o.notes)}</span>` : ""}
+    <span><button type="button" class="btn alt" data-o="done" data-id="${esc(o.id)}" data-s="${esc(o.status)}">${o.status === "Done" ? "Mark as new" : "Mark as done"}</button>
+    <b style="color:${o.status === "Done" ? "green" : "#b45f00"}">${esc(o.status)}</b>
+    <button type="button" class="x" data-o="del" data-id="${esc(o.id)}" title="Delete">🗑</button></span></div>`).join("") : "<p>No orders yet.</p>");
+}
+$("#ord").addEventListener("click", async e => {
+  const b = e.target.closest("[data-o]"); if (!b) return;
+  if (b.dataset.o === "del") { if (!confirm("Delete this order record?")) return; await Store.delOrder(b.dataset.id); }
+  else await Store.setOrder(b.dataset.id, { status: b.dataset.s === "Done" ? "New" : "Done" });
+  loadOrders();
+});
 
-async function start() { D = await Store.load(); draw(); }
+async function start() { D = await Store.load(); draw(); loadOrders(); }
 (async () => {
   const f = await Store.fb();
   if (!f) { $("#st").textContent = "Demo mode: saves in this browser only"; return start(); }

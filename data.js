@@ -48,5 +48,19 @@ const Store = {
     const f = await fb();
     if (f) await f.firestore().doc("site/catalogue").set({ data: JSON.stringify(d) });
     else localStorage.setItem("ck-catalogue", JSON.stringify(d));
-  }
+  },
+    async addOrder(o) {
+    const f = await fb();
+    if (!f) { const l = JSON.parse(localStorage.getItem("ck-orders") || "[]"); l.push(o); localStorage.setItem("ck-orders", JSON.stringify(l)); return; }
+    await f.firestore().collection("orders").add(o);
+  },
+  async orders() {
+    const f = await fb();
+    if (!f) return JSON.parse(localStorage.getItem("ck-orders") || "[]").reverse().map((o, i) => ({ id: "L" + i, ...o }));
+    const s = await f.firestore().collection("orders").orderBy("at", "desc").limit(100).get();
+    return s.docs.map(d => ({ id: d.id, ...d.data() }));
+  },
+  async setOrder(id, patch) { const f = await fb(); if (f) await f.firestore().collection("orders").doc(id).update(patch); },
+  async delOrder(id) { const f = await fb(); if (f) await f.firestore().collection("orders").doc(id).delete(); }
+
 };

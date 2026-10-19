@@ -70,9 +70,14 @@ $("#f").onsubmit = e => {
   const [p, v] = pv(), s = D.shops[p.shop], ph = (s.phone || "").replace(/\D/g, "");
   if (!ph) return alert("This shop’s WhatsApp number is not set yet. Please call the shop directly.");
   const t = `*New order enquiry – ${s.name}*\nName: ${$("#nm").value}\nBusiness: ${$("#bz").value}\nPhone: ${$("#ph").value}\nProduct: ${p.name} (${vName(v)})\nBags: ${$("#bags").value} | Total: ${$("#kg").value} kg` + ($("#nt").value ? `\nNotes: ${$("#nt").value}` : "");
+  Store.addOrder({ shop: s.name, name: $("#nm").value, business: $("#bz").value, phone: $("#ph").value, product: p.name, variant: vName(v), bags: +$("#bags").value, kg: +$("#kg").value, notes: $("#nt").value, status: "New", at: Date.now() }).catch(console.warn);
   open(`https://wa.me/${ph}?text=${encodeURIComponent(t)}`, "_blank");
 };
 
 $("#yr").textContent = new Date().getFullYear();
 watch();
 Store.load().then(d => { D = d; render(); fillProd(); });
+
+
+$("#menu").onclick = () => { const o = $("nav").classList.toggle("open"); $("#menu").setAttribute("aria-expanded", o); };
+$("nav").addEventListener("click", e => { if (e.target.closest("a")) { $("nav").classList.remove("open"); $("#menu").setAttribute("aria-expanded", false); } });
